@@ -1,5 +1,17 @@
 @import "@fontsource-variable/noto-sans-kr";
 
+.demo-notice {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  padding: 10px 18px;
+  background: #eff8e4;
+  color: #526b36;
+  font-size: 13px;
+  line-height: 1.7;
+  text-align: center;
+}
 :root {
   font-family: "Noto Sans KR Variable", "Noto Sans KR", Arial, sans-serif;
   color: #191d17;

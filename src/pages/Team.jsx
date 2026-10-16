@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Header, Footer, Arrow, Field, Empty, ErrorText, useUI } from "../main";
 import { request, tokenFor, daysUntil, localDate } from "../api";
+import { IS_BROWSER_DEMO, inviteUrl } from "../config";
 
 const tabs = [
   ["today", "오늘 우리 팀"],
@@ -263,7 +264,7 @@ function Today({ team, me, leader, readonly, mutate, busy, changeTab }) {
               <>
                 <div className="action-row compact">
                   <CopyButton
-                    text={`${location.origin}/lab/join?code=${team.memberCode}`}
+                    text={inviteUrl(team.memberCode)}
                     className="lime"
                   >
                     팀원 초대 링크 복사
@@ -1123,7 +1124,7 @@ function Invites({ team }) {
               <CopyButton text={code} icon>
                 코드 복사
               </CopyButton>
-              <CopyButton text={`${location.origin}/lab/join?code=${code}`}>
+              <CopyButton text={inviteUrl(code)}>
                 초대 링크 복사 <Arrow />
               </CopyButton>
             </div>
@@ -1131,8 +1132,9 @@ function Invites({ team }) {
         ))}
       </div>
       <p className="helper invitation-help">
-        초대 코드를 가진 사람은 참여할 수 있어요. 교수님용 코드는 공개 게시하지
-        말고 초대할 분에게만 전달해 주세요.
+        {IS_BROWSER_DEMO
+          ? "이 초대 코드와 링크는 같은 브라우저에서 다른 역할을 체험하는 용도입니다. 다른 기기나 브라우저와는 팀방이 공유되지 않습니다."
+          : "초대 코드를 가진 사람은 참여할 수 있어요. 교수님용 코드는 공개 게시하지 말고 초대할 분에게만 전달해 주세요."}
       </p>
     </>
   );

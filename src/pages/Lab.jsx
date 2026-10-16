@@ -17,6 +17,7 @@ import {
   useUI,
 } from "../main";
 import { request, remember, savedRooms, sampleTasks, localDate } from "../api";
+import { IS_BROWSER_DEMO } from "../config";
 
 export function Lab() {
   const [image, setImage] = useState(null);
@@ -393,11 +394,15 @@ export function Join() {
             함께한 과정을 기록하며 상호 평가까지 경험해 보세요.
           </p>
           <aside className="notice">
-            <strong>다른 기기에서도 함께 쓰는 체험판이에요.</strong>
+            <strong>
+              {IS_BROWSER_DEMO
+                ? "이 브라우저에서 체험하는 무료 사이트예요."
+                : "다른 기기에서도 함께 쓰는 체험판이에요."}
+            </strong>
             <p>
-              입력한 내용은 서버에 저장되어 초대받은 사람과 공유됩니다. 실제
-              성적 평가용 자료나 민감한 개인정보는 입력하지 마세요. 같은
-              브라우저에서는 참여한 팀방을 다시 열 수 있어요.
+              {IS_BROWSER_DEMO
+                ? "기록은 현재 브라우저에만 저장됩니다. 초대 코드는 같은 브라우저의 새 탭에서 다른 역할을 체험할 때 사용할 수 있어요. 다른 기기나 브라우저에서는 팀방을 공유할 수 없습니다."
+                : "입력한 내용은 서버에 저장되어 초대받은 사람과 공유됩니다. 실제 성적 평가용 자료나 민감한 개인정보는 입력하지 마세요. 같은 브라우저에서는 참여한 팀방을 다시 열 수 있어요."}
             </p>
           </aside>
         </div>

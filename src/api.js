@@ -1,4 +1,9 @@
+import { IS_BROWSER_DEMO } from "./config";
 export async function request(url, data, token) {
+  if (IS_BROWSER_DEMO) {
+    const { demoRequest } = await import("./browser-demo");
+    return demoRequest(url, data, token);
+  }
   const response = await fetch(url, {
     method: data === undefined ? "GET" : "POST",
     headers: {
@@ -14,7 +19,7 @@ export async function request(url, data, token) {
     );
   return result;
 }
-const key = "dagachi.rooms.v1";
+const key = IS_BROWSER_DEMO ? "dagachi.demo.rooms.v1" : "dagachi.rooms.v1";
 export function savedRooms() {
   try {
     return JSON.parse(localStorage.getItem(key) || "[]");

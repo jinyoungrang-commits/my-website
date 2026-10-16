@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   BrowserRouter,
+  HashRouter,
   Routes,
   Route,
   Link,
@@ -9,6 +10,7 @@ import {
 } from "react-router-dom";
 import { X, ArrowUpRight } from "lucide-react";
 import { request } from "./api";
+import { IS_BROWSER_DEMO, logoUrl } from "./config";
 import { Landing } from "./pages/Landing";
 import { Lab, Join, NewTeam, Plan } from "./pages/Lab";
 import { Team } from "./pages/Team";
@@ -22,7 +24,7 @@ export function Arrow() {
 export function Logo() {
   return (
     <Link to="/" aria-label="다가치 홈" className="logo">
-      <img src="/dagachi-logo.jpg" alt="다가치" />
+      <img src={logoUrl} alt="다가치" />
     </Link>
   );
 }
@@ -46,7 +48,17 @@ export function Header({ landing = false }) {
             <button className="text-button" onClick={() => open("preregister")}>
               사전 신청
             </button>
-            <a href="#about">다가치 소개</a>
+            <a
+              href="#about"
+              onClick={(event) => {
+                event.preventDefault();
+                document
+                  .getElementById("about")
+                  ?.scrollIntoView({ behavior: "smooth" });
+              }}
+            >
+              다가치 소개
+            </a>
             <Link className="button lime" to="/lab">
               팀 생성하기 <Arrow />
             </Link>
@@ -91,8 +103,11 @@ export function Consent({ checked, onChange, short = false }) {
           onChange={(e) => onChange(e.target.checked)}
         />
         <span>
-          체험 데이터의 저장·공유에 동의합니다.
+          {IS_BROWSER_DEMO
+            ? "이 브라우저에 체험 데이터를 저장하는 데 동의합니다."
+            : "체험 데이터의 저장·공유에 동의합니다."}
           {!short &&
+            !IS_BROWSER_DEMO &&
             " 활동은 팀방 참여자에게, 상호 평가는 팀장·교수님과 작성자에게 공개됩니다."}
         </span>
       </label>
@@ -210,7 +225,47 @@ function Modal({ kind, close }) {
               ? "다가치에 문의하기"
               : "다가치를 먼저 만나보세요"}
         </h2>
-        {privacy ? (
+        {IS_BROWSER_DEMO ? (
+          <div className="privacy-copy">
+            {privacy ? (
+              <>
+                <p>
+                  이 무료 사이트는 화면과 기능을 확인하는 브라우저 체험판입니다.
+                </p>
+                <h3>데이터는 어디에 저장되나요?</h3>
+                <p>
+                  이름·할 일·일정·활동 기록·상호 평가는 현재 브라우저에만
+                  저장됩니다. 서버로 전송하거나 다른 기기와 공유하지 않습니다.
+                  브라우저 데이터를 지우면 기록도 삭제됩니다.
+                </p>
+                <h3>초대 코드는 어떻게 사용하나요?</h3>
+                <p>
+                  같은 브라우저의 새 탭에서 다른 이름이나 교수님 역할을 체험할
+                  수 있습니다. 다른 브라우저나 다른 기기에서는 이 팀방에 입장할
+                  수 없습니다.
+                </p>
+                <p>
+                  무료 체험 사이트에서는 문의와 사전 신청을 접수하지 않습니다.
+                </p>
+              </>
+            ) : (
+              <>
+                <p>
+                  무료 체험 사이트에서는{" "}
+                  {kind === "contact" ? "문의" : "사전 신청"} 접수를 아직
+                  지원하지 않습니다.
+                </p>
+                <p>
+                  이름이나 이메일을 수집하거나 전송하지 않습니다. 사이트의
+                  팀방·할 일·기록 화면은 직접 체험할 수 있어요.
+                </p>
+                <button className="button lime" onClick={close}>
+                  확인
+                </button>
+              </>
+            )}
+          </div>
+        ) : privacy ? (
           <div className="privacy-copy">
             <p>
               이 사이트는 다가치의 화면과 팀 협업 흐름을 재구성한 체험판입니다.
@@ -331,6 +386,7 @@ class ErrorBoundary extends React.Component {
     );
   }
 }
+const SiteRouter = IS_BROWSER_DEMO ? HashRouter : BrowserRouter;
 function App() {
   const [modal, setModal] = useState(null);
   const [toast, setToast] = useState("");
@@ -343,7 +399,16 @@ function App() {
   return (
     <ErrorBoundary>
       <UIContext.Provider value={{ open: setModal, notify: setToast }}>
-        <BrowserRouter>
+        <SiteRouter>
+          {IS_BROWSER_DEMO && (
+            <aside className="demo-notice" role="note">
+              <strong>무료 체험 사이트</strong>
+              <span>
+                기록은 이 브라우저에만 저장됩니다. 다른 기기와 공유되지
+                않습니다.
+              </span>
+            </aside>
+          )}
           <ScrollReset />
           <Routes>
             <Route path="/" element={<Landing />} />
@@ -373,7 +438,7 @@ function App() {
               {toast}
             </div>
           )}
-        </BrowserRouter>
+        </SiteRouter>
       </UIContext.Provider>
     </ErrorBoundary>
   );

@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { MessageCircle, Users, Check } from "lucide-react";
 import { Header, Footer, Arrow, useUI } from "../main";
+import { logoUrl } from "../config";
 
 export function Landing() {
   const { open } = useUI();
@@ -36,7 +37,17 @@ export function Landing() {
           </div>
           <div className="hero-bottom">
             <span>다 같이 해서 더 가치 있는 팀플</span>
-            <a href="#why">SCROLL TO DISCOVER ↓</a>
+            <a
+              href="#why"
+              onClick={(event) => {
+                event.preventDefault();
+                document
+                  .getElementById("why")
+                  ?.scrollIntoView({ behavior: "smooth" });
+              }}
+            >
+              SCROLL TO DISCOVER ↓
+            </a>
           </div>
         </section>
         <section className="why landing-width" id="why">
@@ -151,7 +162,7 @@ export function Landing() {
             </p>
           </div>
           <div className="belief-logo card">
-            <img src="/dagachi-logo.jpg" alt="다가치" />
+            <img src={logoUrl} alt="다가치" />
             <span className="pill lime">다 같이 + 가치</span>
           </div>
         </section>
