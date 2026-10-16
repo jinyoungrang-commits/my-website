@@ -1,0 +1,23 @@
+# Render에서 적용하기 전 표시되는 요금을 확인하세요.
+# 이 구성은 무료 체험용 임시 저장소 대신 영구 디스크를 사용합니다.
+# starter 웹 서비스 및 영구 디스크는 유료이며, 이 파일만으로 결제되지는 않습니다.
+services:
+  - type: web
+    name: dagachi-campus
+    runtime: node
+    plan: starter
+    buildCommand: npm ci --include=dev --cache /tmp/dagachi-npm-cache --no-fund && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: PORT
+        value: "10000"
+      - key: DATA_DIR
+        value: /var/data
+    disk:
+      name: dagachi-data
+      mountPath: /var/data
+      sizeGB: 1
