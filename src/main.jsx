@@ -14,6 +14,10 @@ import { IS_BROWSER_DEMO, logoUrl } from "./config";
 import { Landing } from "./pages/Landing";
 import { Lab, Join, NewTeam, Plan } from "./pages/Lab";
 import { Team } from "./pages/Team";
+import {
+  PreregistrationForm,
+  PreregistrationThanks,
+} from "./pages/Preregistration";
 import "./styles.css";
 
 const UIContext = createContext(null);
@@ -161,7 +165,9 @@ function Modal({ kind, close }) {
       if (e.key === "Tab") {
         const nodes = [
           ...dialog.querySelectorAll("button, input, textarea, a[href]"),
-        ].filter((el) => !el.disabled);
+        ].filter(
+          (el) => !el.disabled && el.tabIndex >= 0 && el.getClientRects().length,
+        );
         if (e.shiftKey && document.activeElement === nodes[0]) {
           e.preventDefault();
           nodes.at(-1)?.focus();
@@ -225,7 +231,9 @@ function Modal({ kind, close }) {
               ? "다가치에 문의하기"
               : "다가치를 먼저 만나보세요"}
         </h2>
-        {IS_BROWSER_DEMO ? (
+        {IS_BROWSER_DEMO && kind === "preregister" ? (
+          <PreregistrationForm />
+        ) : IS_BROWSER_DEMO ? (
           <div className="privacy-copy">
             {privacy ? (
               <>
@@ -234,7 +242,7 @@ function Modal({ kind, close }) {
                 </p>
                 <h3>데이터는 어디에 저장되나요?</h3>
                 <p>
-                  이름·할 일·일정·활동 기록·상호 평가는 현재 브라우저에만
+                  팀방의 이름·할 일·일정·활동 기록·상호 평가는 현재 브라우저에만
                   저장됩니다. 서버로 전송하거나 다른 기기와 공유하지 않습니다.
                   브라우저 데이터를 지우면 기록도 삭제됩니다.
                 </p>
@@ -245,7 +253,15 @@ function Modal({ kind, close }) {
                   수 없습니다.
                 </p>
                 <p>
-                  무료 체험 사이트에서는 문의와 사전 신청을 접수하지 않습니다.
+                  사전 신청의 이름·이메일과 동의 내용은 별도로 FormSubmit을
+                  통해 운영자의 이메일로 전송됩니다. 서비스 출시·이용 안내에
+                  사용하며, 운영자는 출시 안내 종료 또는 동의 철회 시 보관한
+                  신청 정보를 삭제합니다. 삭제 요청은
+                  jinyoungrang0502@gmail.com으로 보내주세요.
+                </p>
+                <p>
+                  FormSubmit의 개인정보 처리방침은 신청 양식에서 확인할 수
+                  있습니다. 문의 양식 접수는 아직 지원하지 않습니다.
                 </p>
               </>
             ) : (
@@ -412,6 +428,10 @@ function App() {
           <ScrollReset />
           <Routes>
             <Route path="/" element={<Landing />} />
+            <Route
+              path="/preregister/thanks"
+              element={<PreregistrationThanks />}
+            />
             <Route path="/lab" element={<Lab />} />
             <Route path="/lab/plan" element={<Plan />} />
             <Route path="/lab/new" element={<NewTeam />} />

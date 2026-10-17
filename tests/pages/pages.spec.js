@@ -100,13 +100,72 @@ test("무료 정적 사이트: 경로·원본 로고·팀방 생성·할 일·�
   expect(failedAssets).toEqual([]);
 });
 
-test("무료 공개판은 문의·사전 신청을 접수한 것처럼 표시하지 않음", async ({
-  page,
-}) => {
+test("사전 신청: 필수 입력·동의 후 외부 접수로 POST하고 반환 페이지 표시", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const submissions = [];
+  await page.route("https://formsubmit.co/**", async (route) => {
+    const request = route.request();
+    submissions.push({
+      method: request.method(),
+      url: request.url(),
+      data: new URLSearchParams(request.postData()),
+    });
+    await route.fulfill({
+      status: 302,
+      headers: {
+        location: submissions.at(-1).data.get("_next"),
+      },
+      body: "",
+    });
+  });
   await page.goto("./");
-  await page.getByRole("button", { name: "사전 신청", exact: true }).click();
-  await expect(page.getByRole("dialog")).toContainText(
-    "접수를 아직 지원하지 않습니다",
+  await page.getByRole("button", { name: "사전 신청하기", exact: true }).click();
+  const dialog = page.getByRole("dialog");
+  const submit = dialog.getByRole("button", { name: "사전 신청하기" });
+  await submit.click();
+  await expect(dialog.getByLabel("이름", { exact: true })).toBeFocused();
+  await dialog.getByLabel("이름", { exact: true }).fill("테스트 신청자");
+  await dialog.getByLabel("이메일", { exact: true }).fill("invalid-email");
+  await submit.click();
+  await expect(dialog.getByLabel("이메일", { exact: true })).toBeFocused();
+  await dialog.getByLabel("이메일", { exact: true }).fill("applicant@example.com");
+  await submit.click();
+  await expect(dialog.getByRole("checkbox")).toBeFocused();
+  expect(submissions).toHaveLength(0);
+  await dialog.getByText("개인정보 수집·이용 안내", { exact: true }).click();
+  await expect(dialog).toContainText("FormSubmit을 통해");
+  await dialog.getByRole("checkbox").check();
+  await submit.click();
+  await expect(page).toHaveURL(/my-website\/#\/preregister\/thanks$/);
+  await expect(
+    page.getByRole("heading", { name: "다가치를 기다려 주셔서 고마워요." }),
+  ).toBeVisible();
+  expect(submissions).toHaveLength(1);
+  const sent = submissions[0];
+  expect(sent.method).toBe("POST");
+  expect(sent.url).toBe("https://formsubmit.co/jinyoungrang0502@gmail.com");
+  expect(sent.data.get("name")).toBe("테스트 신청자");
+  expect(sent.data.get("email")).toBe("applicant@example.com");
+  expect(sent.data.get("consent")).toContain("동의함");
+  expect(sent.data.get("_honey")).toBe("");
+  expect(sent.data.get("_captcha")).toBeNull();
+  expect(sent.data.get("_next")).toBe(
+    "http://127.0.0.1:3113/my-website/#/preregister/thanks",
   );
+  await page.reload();
+  await page.getByRole("link", { name: "다가치 홈으로" }).click();
+  await expect(page.getByRole("heading", { name: "다 같이 해서 더 가치 있는 팀플" })).toBeVisible();
+  expect(await page.evaluate(() => Object.values(localStorage).some(value => value.includes("applicant@example.com")))).toBe(false);
+});
+
+test("문의는 준비 중 안내를 유지하고 사전 신청 개인정보 안내는 분리", async ({ page }) => {
+  await page.goto("./#/lab");
+  await page.getByRole("button", { name: "문의하기" }).click();
+  await expect(page.getByRole("dialog")).toContainText("문의 접수를 아직 지원하지 않습니다");
   await expect(page.getByRole("dialog").getByRole("textbox")).toHaveCount(0);
+  await page.keyboard.press("Escape");
+  await page.goto("./");
+  await page.getByRole("button", { name: "개인정보 안내", exact: true }).click();
+  await expect(page.getByRole("dialog")).toContainText("FormSubmit");
+  await expect(page.getByRole("dialog")).toContainText("브라우저에만 저장됩니다");
 });

@@ -1765,6 +1765,44 @@ input[type="checkbox"]:disabled {
   font-size: 16px;
   margin-top: -10px;
 }
+.form-honeypot {
+  display: none;
+}
+.registration-privacy {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.8;
+}
+.registration-privacy summary {
+  color: var(--ink);
+  cursor: pointer;
+}
+.registration-privacy p {
+  margin-top: 12px;
+}
+.registration-privacy a {
+  text-decoration: underline;
+}
+.registration-note {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.8;
+}
+.registration-thanks {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 120px 24px;
+  text-align: center;
+}
+.registration-thanks h1 {
+  font-size: clamp(30px, 4vw, 54px);
+  margin: 24px 0;
+}
+.registration-thanks p {
+  color: var(--muted);
+  margin-bottom: 36px;
+  line-height: 1.8;
+}
 .privacy-copy {
   font-size: 15px;
   line-height: 1.9;
