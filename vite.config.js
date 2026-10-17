@@ -1,12 +1,12 @@
 import { defineConfig } from "vite";
 export default defineConfig(({ mode }) => ({
-  base: mode === "pages" ? "/my-website/" : "/",
+  base: mode === "pages" ? "/my-website/" : mode === "static" ? "./" : "/",
   define: {
     "import.meta.env.VITE_BROWSER_DEMO": JSON.stringify(
-      mode === "pages" ? "true" : "false",
+      ["pages", "static"].includes(mode) ? "true" : "false",
     ),
   },
-  build: { outDir: mode === "pages" ? "dist-pages" : "dist" },
+  build: { outDir: mode === "pages" ? "dist-pages" : mode === "static" ? "dist-site" : "dist" },
   server: {
     host: "0.0.0.0",
     port: 5173,
